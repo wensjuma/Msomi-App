@@ -1,0 +1,20 @@
+
+language: python
+
+# python version
+python:
+  - "3.6"
+
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+
+
+# command to run tests
+script:
+  - coverage run --source=./ -m pytest tests -v -W error::UserWarning && coverage report
+
+# Post coverage results to coverage.io
+after_success:
+  - coveralls
+  - codeclimate-test-reporter
