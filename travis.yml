@@ -1,13 +1,20 @@
+
 language: python
+
+# python version
 python:
-  - "2.7"
+  - "3.6"
+
 # command to install dependencies
 install:
-   - pip install -r requirements.txt
+  - pip install -r requirements.txt
+
 # command to run tests
-before_script:
-  - psql -c 'CREATE DATABASE msomidbtest;' -U postgres
 script:
-  - python -m pytest --cov=app 
+  - coverage run --source=./ -m pytest tests -v -W error::UserWarning && coverage report
+
+# Post coverage results to coverage.io
 after_success:
   - coveralls
+  - codeclimate-test-reporter
+

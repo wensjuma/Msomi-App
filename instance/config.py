@@ -3,7 +3,7 @@ This contains msomi app configurations
 """
 import os
 
-class Config:
+class Config(object):
     """
     This is the default configuration class
     Set Debug to False
@@ -44,11 +44,11 @@ class Staging(Config):
 Declaring our application configuration
 for development and testing
 """
-app_config = {
-    "development": Development,
-    "testing": Testing,
-    "staging":Staging,
-    "production": Production,
-    "DB_URL": os.getenv('DATABASE_URL'),
-    "TEST_DB_URL": os.getenv('DATABASE_TEST_URL')
+config = {
+    'development' : Development,
+    'testing': Testing,
+    'staging': Staging,
+    'production': Production,
+    'DB_URL': os.getenv('DATABASE_URL'),
+    'TEST_DB_URL': os.getenv('DATABASE_TEST_URL')
 }
