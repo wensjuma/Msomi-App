@@ -28,7 +28,7 @@ def add_user():
         email = data["email"]  
         password = data["password"]
     except:
-         return abort(404, "error", "wrong input!!")
+         return abort(400, "error", "wrong input!!")
 
     newuser = NewUsers(fullname, username, email, password)
     newuser.create_new_user()
@@ -56,9 +56,6 @@ def user_login():
         if not user:
             abort(utils.res_method(404, "error", "User does not exist"))
 
-
-        # id = user[0][0]
-        # username = user[0][1]
         hashed_password = user[0][2]
         req_email= request_email.strip()
 
