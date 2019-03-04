@@ -7,7 +7,7 @@ import sys
 import psycopg2
 import psycopg2.extras
 from werkzeug.security import generate_password_hash
-from config import app_config
+from instance.config import config
 
 
 #db_url= "dbname='politico' host='127.0.0.1' port='5432' user='postgres' password='root'",
@@ -35,9 +35,8 @@ def create_tables():
     create_user_query= """
         CREATE TABLE IF NOT EXISTS users(
             id SERIAL PRIMARY KEY,
-            username VARCHAR (124) NOT NULL UNIQUE,
-            firstname VARCHAR (124) NOT NULL,
-            lastname VARCHAR (124) NOT NULL,
+            fullname VARCHAR (124) NOT NULL,
+            username VARCHAR (124) NOT NULL UNIQUE,           
             email VARCHAR (255) NOT NULL,
             password VARCHAR (255) NOT NULL
         )
@@ -77,7 +76,7 @@ def connect_db(query=None, DB_URL=None):
     return conn, cursor
 
 
-def query_data_from_db(query):
+def add_data_to_db(query):
     """
         Handles INSERT queries
     """
