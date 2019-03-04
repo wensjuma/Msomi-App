@@ -1,7 +1,7 @@
 
 profile = []
-class User(object):
-    """ user data model to store data """
+class Profile(object):
+    """ profile data model to store data """
 
     def __init__(self):
         self.profile = profile

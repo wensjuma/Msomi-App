@@ -1,8 +1,8 @@
 from flask import Flask, Blueprint, make_response, jsonify, abort, request
-from app.api.v1.models import user_model
+from app.api.v1.models import profile_model
 
 # an instance of the user_model
-user = user_model.User()
+user = profile_model.Profile()
 
 user_blueprint = Blueprint('users', __name__, url_prefix='/api/v1')
 
