@@ -41,7 +41,17 @@ def create_tables():
             password VARCHAR (255) NOT NULL
         )
         """
-    return [create_user_query]
+    create_group_query="""
+        CREATE TABLE IF NOT EXISTS groups(
+            group_id SERIAL PRIMARY KEY,
+            creator_id INTEGER,
+            FOREIGN KEY(creator_id) REFERENCES users(Id),
+            group_title VARCHAR(128) NOT NULL,
+            group_description VARCHAR(255), 
+            created_on TIMESTAMP
+        )
+        """
+    return [create_user_query, create_group_query]
 
 def drop_table_if_exists():
     return
