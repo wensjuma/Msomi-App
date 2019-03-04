@@ -32,3 +32,14 @@ class NewUsers():
         WHERE users.email = '{}'""".format(email)
 
         return database.select_data_from_db(select_user_by_email)
+class GroupDiscussions():
+    def __init__(self, group_title, group_description):
+        self.group_title= group_title
+        self.description= group_description
+
+    def create_new_group(self):
+        create_group_query="""
+         INSERT INTO groups(group_title, group_description) VALUES('{}', '{}')
+         """.format(self.group_title, self.description)
+
+        database.add_data_to_db(create_group_query)

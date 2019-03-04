@@ -11,4 +11,7 @@ def start_app(app_config):
 
     app.register_blueprint(user_blueprint)
 
+    from app.api.v1.views.group_view import group_blueprints 
+    app.register_blueprint(group_blueprints)
+
     return app
