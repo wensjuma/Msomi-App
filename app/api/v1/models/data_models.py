@@ -43,3 +43,12 @@ class GroupDiscussions():
          """.format(self.group_title, self.description)
 
         database.add_data_to_db(create_group_query)
+
+    def fetch_all_groups(self):
+        
+        query = """SELECT * FROM groups"""
+        return database.select_data_from_db(query)
+  
+    def delete_group(self, group_id):
+        delete_group_query = """DELETE FROM groups WHERE id = '{}' """.format(group_id)
+        return database.select_data_from_db(delete_group_query)
