@@ -1,15 +1,12 @@
 import os
+import json
 import psycopg2
 from flask import Flask, Blueprint, make_response, jsonify, abort, request
 from app.api.v1.models.data_models import NewUsers
 from app.api.v1 import utils
 import datetime
 from flask_jwt import jwt
-
-
-
-
-user_blueprint = Blueprint('users', __name__, url_prefix='/api/v1')
+user_blueprint= Blueprint('users', __name__, url_prefix='/api/v1/auth')
 
 @user_blueprint.route('/', methods=['GET'])
 def index():
@@ -18,7 +15,7 @@ def index():
         "status":200
     }), 200)
 
-@user_blueprint.route('/auth/register', methods=['GET', 'POST'])
+@user_blueprint.route('/register', methods=['GET', 'POST'])
 def add_user():
 
     try:
@@ -40,7 +37,7 @@ def add_user():
         },
         "token": newuser.password
     }])
-@user_blueprint.route("/auth/login", methods=['POST'])
+@user_blueprint.route('/login', methods=['POST'])
 def user_login():
     try:
         data = request.get_json()
@@ -82,4 +79,56 @@ def user_login():
     except psycopg2.DatabaseError as _error:
         abort(utils.res_method(500, "error", "Server error"))
 
+@user_blueprint.route('/users/<int:user_id>', methods=['GET'])
+def fetch_user_by_id(user_id):
+    
+    fetched= NewUsers.get_single_user(user_id)
+    data_fetched= NewUsers.format_user_data(fetched)
+    if data_fetched:
+        return utils.res_method(200, "data", data_fetched)
+    return utils.res_method(404, "error", "User not found!")
+# can be easily consumed When the UI is implemented
+@user_blueprint.route("/reset", methods=["POST"])
+def reset_password():
+    try:
+        data = request.get_json()
+        email = data["email"]
+    except KeyError:
+        abort(utils.res_method(400, "error", "Should be email"))
+    #checking email validity
+    utils.isEmailValid(email)
+    link = "https://127.0.0.1/5000/api/v1/auth/securereset"
 
+    # send a request to the endpoint that will send the mail
+    request.post(
+        link, data=json.dumps({"email": email}),
+        headers={'Content-Type': 'application/json'}
+    )
+    return utils.res_method(200, "data", [{
+        "message": "Check your email for password reset link",
+        "email": email
+    }])
+
+# send the email securely from server
+@user_blueprint.route("/auth/securereset", methods=["POST"])
+def secure_reset():
+    """
+        this endpoint is to be requested 
+        from the server only via the 
+        /auth/reset view. Client browsers accessing this view will
+        be forbidden and hence the mail will not be sent
+        view https://sendgrid.com/docs/for-developers/sending-email/cors/
+        for more details on the reasons this implementation is necessary
+    """
+    try:
+        data = request.get_json()
+        email = data["email"]
+    except KeyError:
+        abort(utils.res_method(400, "error", "Should be email"))
+    # check if email is valid
+    utils.isEmailValid(email)
+    NewUsers.sendmail(email)
+    return utils.res_method(200, "data", [{
+        "message": "Check your email for password reset link",
+        "email": email
+    }])

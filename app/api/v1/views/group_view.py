@@ -4,10 +4,12 @@ from flask import Flask, Blueprint, make_response, jsonify, abort, request
 from app.api.v1.models.data_models import GroupDiscussions
 from app.api.v1 import utils
 from app.api.v1 import database
+from app.api.v1.utils import token_required
 
+group_blueprint= Blueprint('group', __name__, url_prefix='/api/v1')
 
-group_blueprints= Blueprint('group', __name__, url_prefix='/api/v1/auth')
-@group_blueprints.route('/newgroup', methods=['POST'])
+@group_blueprint.route('/newgroup', methods=['POST'])
+@token_required
 def create_groups():
     try:
         data= request.get_json()
@@ -25,13 +27,30 @@ def create_groups():
             "group_title":new_group.group_title
         }
     }])
-@group_blueprints.route('/newgroup', methods=['PUT'])
+@group_blueprint.route('/fetchgroups', methods=['GET'])
+@token_required
+def get_all_groups():
+    group_data= GroupDiscussions.fetch_all_groups()   
+    if group_data:
+        return utils.res_method(200, "data", group_data)
+    return utils.res_method(404, "error", "No groups available")
+
+@group_blueprint.route('/fetchgroup/<int:group_id>', methods=['GET'])
+def fetch_specific_group(group_id):
+    group_data= GroupDiscussions.fetch_specific_group_from_db(group_id)   
+    if group_data:
+        return utils.res_method(200, "data", group_data)
+    return utils.res_method(404, "error", "Specified group couldn't be found!!")
+
+@group_blueprint.route('/newgroup', methods=['PUT'])
 def edit_group():
     return 
 
-@group_blueprints.route('/delete/<int:id>', methods=['DELETE'])
+@group_blueprint.route('/delete/<int:id>', methods=['DELETE'])
 def delete_group(id):
-    query = """SELECT * FROM groups WHERE id = {}""".format(id)
+    query = """
+    SELECT * FROM groups WHERE id = {}
+    """.format(id)
     group = database.select_data_from_db(query)
         
     if not group:
