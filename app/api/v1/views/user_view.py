@@ -26,7 +26,8 @@ def add_user():
         password = data["password"]
     except:
          return abort(400, "error", "wrong input!!")
-
+    utils.check_matching_items_in_db_table({"username": username}, "users")
+    utils.check_matching_items_in_db_table({"email": email}, "users")
     newuser = NewUsers(fullname, username, email, password)
     newuser.create_new_user()
 

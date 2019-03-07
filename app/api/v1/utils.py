@@ -79,8 +79,20 @@ def check_matching_items_in_db_table(params, table_name):
         duplicated = select_data_from_db(query)
         if duplicated:
             abort(res_method(409, "error",
-                              "Error. '{}' '{}' is already in use".format(key, value)))
-
+                              "Error {} already in Exists".format(value)))
+def check_existing_item_in_table(params, table_name):
+    """
+        check if a value of key provided exists in the db table 
+    """
+    for key, value in params.items():
+        query = """
+        SELECT {} from {} WHERE {}.{} = '{}'
+        """.format(key, table_name, table_name, key, value)
+        existence = select_data_from_db(query)
+        if not existence:
+            abort(res_method(404, "error",
+                              "Error. '{}' '{}' doesn't Exist".format(key, value)))
+        
 def token_required(f):
     """
         This higher order function checks for token in the request
