@@ -97,6 +97,7 @@ class GroupDiscussions():
         self.group_title= group_title
         self.description= group_description
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+      
     @staticmethod
     def formatGroupData(iterable):
         """
@@ -106,8 +107,11 @@ class GroupDiscussions():
         data = []
         for group in iterable:
             formattedgroup= {
-                              'group_title': group[0],
-                              'group_description': group[1]
+                              'group number':group[0],
+                              'created by':group[1],
+                              'group name': group[2],
+                              'description': group[3],
+                              'date of creation':group[4]
             }  
 
             data.append(formattedgroup)
@@ -138,4 +142,14 @@ class GroupDiscussions():
         return database.select_data_from_db(delete_group_query)
 
     #=======Add members in a  group======
-  
+class AddMembers():
+    def __init__(self,  email, group_name):
+        self.email= email
+        self.group_name=group_name
+             
+
+    def add_members_in_group(self):
+        add_member= """
+        INSERT INTO members(group_name, email) VALUES('{}', '{}')
+        """.format(self.group_name, self.email)
+        database.add_data_to_db(add_member)

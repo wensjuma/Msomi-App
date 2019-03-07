@@ -48,15 +48,22 @@ def create_tables():
             FOREIGN KEY(creator_id) REFERENCES users(Id),
             group_title VARCHAR(128) NOT NULL,
             group_description VARCHAR(255), 
-            created_on TIMESTAMP
-        )
-        """
-    create_members_table_query="""
-        CREATE TABLE IF NOT EXISTS members(
+            created_on TIMESTAMP NOT NULL DEFAULT now()
 
         )
         """
-    return [create_user_table_query, create_group_table_query]
+
+    create_members_table_query="""
+        CREATE TABLE IF NOT EXISTS members(
+             member_id SERIAL PRIMARY KEY,
+             email VARCHAR(124) NOT NULL,
+             groupId INTEGER,
+             group_name VARCHAR(124),
+             FOREIGN KEY(groupId) REFERENCES groups(group_id),
+             time_added TIMESTAMP DEFAULT now()
+        )    
+        """
+    return [create_user_table_query, create_group_table_query, create_members_table_query]
 
 def drop_table_if_exists():
     drop_table_users= """DROP TABLE IF EXISTS users"""
