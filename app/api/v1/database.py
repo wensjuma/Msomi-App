@@ -32,7 +32,7 @@ def db_init(DB_URL=None):
 def create_tables():
     #CREATES TABLE FOR users IF THEY DONT EXIST
     
-    create_user_query= """
+    create_user_table_query= """
         CREATE TABLE IF NOT EXISTS users(
             id SERIAL PRIMARY KEY,
             fullname VARCHAR (124) NOT NULL,
@@ -41,10 +41,33 @@ def create_tables():
             password VARCHAR (255) NOT NULL
         )
         """
-    return [create_user_query]
+    create_group_table_query="""
+        CREATE TABLE IF NOT EXISTS groups(
+            group_id SERIAL PRIMARY KEY,
+            creator_id INTEGER,
+            FOREIGN KEY(creator_id) REFERENCES users(Id),
+            group_title VARCHAR(128) NOT NULL,
+            group_description VARCHAR(255), 
+            created_on TIMESTAMP NOT NULL DEFAULT now()
+
+        )
+        """
+
+    create_members_table_query="""
+        CREATE TABLE IF NOT EXISTS members(
+             member_id SERIAL PRIMARY KEY,
+             email VARCHAR(124) NOT NULL,
+             groupId INTEGER,
+             group_name VARCHAR(124),
+             FOREIGN KEY(groupId) REFERENCES groups(group_id),
+             time_added TIMESTAMP DEFAULT now()
+        )    
+        """
+    return [create_user_table_query, create_group_table_query, create_members_table_query]
 
 def drop_table_if_exists():
-    return
+    drop_table_users= """DROP TABLE IF EXISTS users"""
+    return [drop_table_users]
 
 
 def connect_db(query=None, DB_URL=None):

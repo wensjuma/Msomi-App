@@ -4,7 +4,7 @@ from app.api.v1.models import profile_model
 # an instance of the user_model
 user = profile_model.Profile()
 
-profile_blueprint = Blueprint('users', __name__, url_prefix='/api/v1')
+profile_blueprint = Blueprint('user', __name__, url_prefix='/api/v1')
 
 @profile_blueprint.route('/', methods=['GET'])
 def index():
@@ -50,17 +50,26 @@ def get_profiles():
 @profile_blueprint.route('profile/<int:user_id>',methods = ['GET'])
 def get_specific_profile(user_id):
     profile = user.get_specific_profile(user_id)
-
+    if profile:
+        return make_response(jsonify({
+            "status":200,
+            "data":profile
+        }))
     return make_response(jsonify({
-        "status":200,
-        "data":profile
+        "status":404, 
+        "error":"No Such User, kindly, Try again"
     }))
 
 @profile_blueprint.route('profile/<int:user_id>',methods = ['DELETE'])
 def delete_profile(user_id):
     profile = user.delete_profile(user_id)
-
+    if profile:
+        return make_response(jsonify({
+            "status":200,
+            "data":profile
+        }))
     return make_response(jsonify({
-        "status":200,
-        "data":profile
+        "status":400, 
+        "error":"Something Went wrong"
     }))
+

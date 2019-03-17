@@ -79,35 +79,45 @@ def check_matching_items_in_db_table(params, table_name):
         duplicated = select_data_from_db(query)
         if duplicated:
             abort(res_method(409, "error",
-                              "Error. '{}' '{}' is already in use".format(key, value)))
-
-
+                              "Error {} already in Exists".format(value)))
+def check_existing_item_in_table(params, table_name):
+    """
+        check if a value of key provided exists in the db table 
+    """
+    for key, value in params.items():
+        query = """
+        SELECT {} from {} WHERE {}.{} = '{}'
+        """.format(key, table_name, table_name, key, value)
+        existence = select_data_from_db(query)
+        if not existence:
+            abort(res_method(404, "error",
+                              "Error. '{}' '{}' doesn't Exist".format(key, value)))
+        
 def token_required(f):
     """
-        Checks for token in the request header
+        This higher order function checks for token in the request
+        Headers
     """
-    
-def verify_tokens():
-    token = None
-    if 'Authorization' in request.headers:
-        token = request.headers['Authorization']
-    if not token:
-        abort(make_response(jsonify({
-                                "Message": "You need to login"}), 401))
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            return res_method(401, "error", "You need to Login first!")
+        try:
+            data = jwt.decode(token, KEY, algorithms='HS256')
+            query = """
+            SELECT email, id, username FROM users
+            WHERE users.email = '{}'""".format(data['email'])
 
-    query = """SELECT token FROM auth WHERE  token = '{}'""".format(token)
-    blacklisted = database.select_data_from_db(query)
-    if blacklisted:
-        abort(make_response(jsonify({
-                        "Message": "Kindly login again"}), 401))
-    try:
-        data = jwt.decode(token, os.getenv('JWT_SECRET_KEY', default='SdaHv342nx!jknr837bjwd?c,lsajjjhw673hdsbgeh'))
-        return data["email"], data["user_id"]
+            user = select_data_from_db(query)
 
-    except:
-        abort(make_response(jsonify({
-            "Message": "The token is either expired or wrong"
-        }), 403))   
+        except:
+            return res_method(401, "error", "Token is expired or invalid")
+
+        return f(user, *args, **kwargs)
+    return decorated
 
 def res_method(status,key, message):
     dict ={
