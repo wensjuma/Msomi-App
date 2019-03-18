@@ -9,7 +9,7 @@ from app.api.v1.utils import token_required
 group_blueprint= Blueprint('group', __name__, url_prefix='/api/v1/groups')
 
 @group_blueprint.route('/newgroup', methods=['POST'])
-# @token_required
+@token_required
 def create_groups():
     try:
         data= request.get_json()
@@ -40,11 +40,16 @@ def fetch_specific_group(group_id):
     if group_data:
         return utils.res_method(200, "data", group_data)
     return utils.res_method(404, "error", "Specified group couldn't be found!!")
-
-@group_blueprint.route('/newgroup', methods=['PUT'])
+#not yet done 
+@group_blueprint.route('/updategroup', methods=['PUT'])
 def edit_group():
-    return 
-
+    try:
+        data = request_json()
+        title =data['group_title']
+        desc= data['group_description']
+    except:
+      return utils.res_method(400, "error", "Something went wrong")
+    
 @group_blueprint.route('/delete/<int:id>', methods=['DELETE'])
 def delete_group(id):
     query = """
